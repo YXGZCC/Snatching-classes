@@ -1,0 +1,81 @@
+#用于快速抢课，先按F12去预抢课，把抓到的参数填在代码里，然后运行抢课即可。
+import requests
+import re
+from PIL import Image
+import io
+from Crypto.Cipher import AES
+from Crypto.Random import get_random_bytes
+import base64
+import json
+import time
+import websocket
+
+import urllib.parse
+
+def classpost(Authorization,cookie,classId,secretVal):
+    s6 = requests.Session()
+    url_list = 'http://xkfw.xasyu.cn/xsxk/elective/clazz/add'  #改
+    data_list = {
+        'clazzType': 'XGKC',  #可能改
+        'clazzId': classId,
+        'secretVal': secretVal
+    }
+    headers_list = {
+        'Accept': 'application/json, text/plain, */*',
+        'Accept-Encoding': 'gzip, deflate',
+        'Accept-Language': 'zh-CN,zh;q=0.9',
+        'Authorization': Authorization,
+        'batchId': '1a32a677f1b444b98b6d099e1bbb3daf',#改
+        'Content-Length': '260',  #有用，要改
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Cookie': cookie,
+        'Dnt': '1',
+        'Host': 'xkfw.xasyu.cn', #改
+        'Connection': 'keep-alive',
+        'Origin': 'http://xkfw.xasyu.cn', #改
+        'Referer': 'http://xkfw.xasyu.cn/xsxk/elective/grablessons?batchId=1a32a677f1b444b98b6d099e1bbb3daf', #改
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36' #可改
+    }
+    print("开始抢课，参数校验")
+    print(f"找到 {classId} 对应的 secretVal 值为: {secretVal}")
+
+    data_encoded = urllib.parse.urlencode(data_list)
+    print(f"发送的数据为: {data_encoded}")
+
+    while True:
+        response = s6.post(url=url_list, data=data_encoded, headers=headers_list)
+        response_data = response.json()  # 解析响应内容
+        time.sleep(1.0)
+
+        if response.status_code == 200:
+            if response_data.get('code') == 200:
+                print("抢课成功")
+                print(response_data)
+                print("抢课到此结束，抢其它课请重新运行此程序")
+                break
+            elif response_data.get('code') == 500:
+                print("未开始或学分已满，详情如下行：（无限循环抢课，如果学分已满请强制结束运行）")
+                print(response_data)
+        else:
+            print("抢课请求遇到未知网络错误，详情如下，请截图反馈")
+            print(response_data)
+
+
+
+
+
+if __name__ == "__main__":
+    print("此程序为源星光子编写，通宵完成，为交流学习使用，请于下载后24小时内删除")
+    Authorization = input("请输入Authorization的值: ")
+    cookie = input("请输入cookie的值: ")
+    clazzId1 = input("请输入课程1的clazzId: ")
+    secretVal1 = input("请输入课程1的secretVal: ")
+    classpost(Authorization,cookie, clazzId1, secretVal1)
+
+    clazzId2 = input("请输入课程2的clazzId: ")
+    secretVal2 = input("请输入课程2的secretVal: ")
+    # while True:
+    #     classpost(Authorization, clazzId1, secretVal1)
+
+
+
